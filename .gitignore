@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+.vite
+.DS_Store
+.env
+.env.local
+*.log
+round*_gitdiff.patch
+round*_gitdiff_stat.txt
+round*_gitdiff_files.txt
+round*_pr.patch
+round*_pr_stat.txt
+round*_pr_files.txt
+.snapshots
