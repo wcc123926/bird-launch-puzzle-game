@@ -7,7 +7,10 @@ import {
   applyGravity,
   updatePosition,
   checkCollision,
-  resolveCollision
+  resolveCollision,
+  MAX_FORCE,
+  FORCE_SCALE,
+  GRAVITY
 } from './game/physics'
 import { 
   levels
@@ -128,8 +131,7 @@ function App() {
     const dist = Math.sqrt(dx * dx + dy * dy)
 
     if (dist > 10) {
-      const maxForce = 18
-      const force = Math.min(dist / 15, maxForce)
+      const force = Math.min(dist / FORCE_SCALE, MAX_FORCE)
       const angle = Math.atan2(dy, dx)
       
       const bird: Bird = {
@@ -277,7 +279,8 @@ function App() {
     if (!dragStart || !dragEnd) return 0
     const dx = dragStart.x - dragEnd.x
     const dy = dragStart.y - dragEnd.y
-    return Math.min(Math.sqrt(dx * dx + dy * dy) / 200, 1)
+    const maxDist = MAX_FORCE * FORCE_SCALE
+    return Math.min(Math.sqrt(dx * dx + dy * dy) / maxDist, 1)
   }
 
   const remainingBirds = level.birdsCount - gameState.birdsUsed
