@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react'
 import { Level } from '../game/levels'
 import { GameState } from '../game/gameState'
-import { Vector2 } from '../game/physics'
+import { Vector2, MAX_FORCE, FORCE_SCALE, GRAVITY } from '../game/physics'
 
 interface GameCanvasProps {
   level: Level
@@ -95,7 +95,7 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(function GameC
       const dx = dragStart.x - dragEnd.x
       const dy = dragStart.y - dragEnd.y
       const dist = Math.sqrt(dx * dx + dy * dy)
-      const force = Math.min(dist / 15, 18)
+      const force = Math.min(dist / FORCE_SCALE, MAX_FORCE)
       const angle = Math.atan2(dy, dx)
 
       ctx.setLineDash([5, 5])
@@ -110,8 +110,8 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(function GameC
 
       ctx.moveTo(predictX, predictY)
 
-      for (let i = 0; i < 60; i++) {
-        velY += 0.5
+      for (let i = 0; i < 80; i++) {
+        velY += GRAVITY
         predictX += velX
         predictY += velY
         if (predictY > level.ground.y) break
@@ -120,7 +120,8 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(function GameC
       ctx.stroke()
       ctx.setLineDash([])
 
-      const powerPercent = Math.min(dist / 300, 1)
+      const maxDist = MAX_FORCE * FORCE_SCALE
+      const powerPercent = Math.min(dist / maxDist, 1)
       const powerColor = powerPercent < 0.33 ? '#4CAF50' : powerPercent < 0.66 ? '#FFC107' : '#F44336'
       
       ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'

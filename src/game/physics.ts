@@ -35,9 +35,11 @@ export interface Ground {
   height: number
 }
 
-export const GRAVITY = 0.5
-export const FRICTION = 0.99
-export const BOUNCE_FACTOR = 0.7
+export const GRAVITY = 0.35
+export const FRICTION = 0.995
+export const BOUNCE_FACTOR = 0.6
+export const MAX_FORCE = 28
+export const FORCE_SCALE = 12
 
 export function createBird(x: number, y: number): Bird {
   return {
