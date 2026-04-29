@@ -58,7 +58,8 @@ function App() {
   }, [resetLevel])
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (gameState.gameOver || gameState.levelComplete || !isPlaying) return
+    if (gameState.gameOver || gameState.levelComplete) return
+    if (gameState.isBirdFlying) return
     if (gameState.birdsUsed >= level.birdsCount) return
 
     const canvas = canvasRef.current
@@ -78,21 +79,19 @@ function App() {
     const y = clientY - rect.top
 
     const slingshot = level.slingshot
-    const birdOnSlingshot: Bird = {
-      ...createBird(slingshot.x, slingshot.y - 30),
-      isLaunched: false
-    }
+    const birdX = slingshot.x
+    const birdY = slingshot.y - 30
 
-    const dx = x - birdOnSlingshot.x
-    const dy = y - birdOnSlingshot.y
+    const dx = x - birdX
+    const dy = y - birdY
     const dist = Math.sqrt(dx * dx + dy * dy)
 
-    if (dist <= birdOnSlingshot.radius * 2) {
+    if (dist <= 80) {
       setDragging(true)
-      setDragStart({ x: birdOnSlingshot.x, y: birdOnSlingshot.y })
+      setDragStart({ x: birdX, y: birdY })
       setDragEnd({ x, y })
     }
-  }, [gameState, level, isPlaying])
+  }, [gameState.gameOver, gameState.levelComplete, gameState.isBirdFlying, gameState.birdsUsed, level, isPlaying])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!dragging) return
@@ -129,12 +128,12 @@ function App() {
     const dist = Math.sqrt(dx * dx + dy * dy)
 
     if (dist > 10) {
-      const maxForce = 20
-      const force = Math.min(dist / 10, maxForce)
+      const maxForce = 18
+      const force = Math.min(dist / 15, maxForce)
       const angle = Math.atan2(dy, dx)
       
       const bird: Bird = {
-        ...createBird(dragStart.x, dragStart.y),
+        ...createBird(dragEnd.x, dragEnd.y),
         velocity: {
           x: Math.cos(angle) * force,
           y: Math.sin(angle) * force
@@ -247,15 +246,18 @@ function App() {
           }
         }
 
+        const updatedBird = !bird.isActive ? null : bird
+        const updatedIsBirdFlying = bird.isActive
+
         return {
           ...prev,
-          activeBird: bird,
+          activeBird: updatedBird,
           pigs,
           boxes,
           score,
           levelComplete,
           gameOver,
-          isBirdFlying: bird.isActive
+          isBirdFlying: updatedIsBirdFlying
         }
       })
 
