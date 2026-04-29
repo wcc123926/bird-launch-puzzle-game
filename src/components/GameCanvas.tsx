@@ -95,7 +95,7 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(function GameC
       const dx = dragStart.x - dragEnd.x
       const dy = dragStart.y - dragEnd.y
       const dist = Math.sqrt(dx * dx + dy * dy)
-      const force = Math.min(dist / 10, 20)
+      const force = Math.min(dist / 15, 18)
       const angle = Math.atan2(dy, dx)
 
       ctx.setLineDash([5, 5])
@@ -103,14 +103,14 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(function GameC
       ctx.lineWidth = 2
       ctx.beginPath()
 
-      let predictX = dragStart.x
-      let predictY = dragStart.y
+      let predictX = dragEnd.x
+      let predictY = dragEnd.y
       let velX = Math.cos(angle) * force
       let velY = Math.sin(angle) * force
 
       ctx.moveTo(predictX, predictY)
 
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 60; i++) {
         velY += 0.5
         predictX += velX
         predictY += velY
@@ -119,6 +119,47 @@ const GameCanvas = forwardRef<HTMLCanvasElement, GameCanvasProps>(function GameC
       }
       ctx.stroke()
       ctx.setLineDash([])
+
+      const powerPercent = Math.min(dist / 300, 1)
+      const powerColor = powerPercent < 0.33 ? '#4CAF50' : powerPercent < 0.66 ? '#FFC107' : '#F44336'
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+      ctx.fillRect(dragEnd.x - 25, dragEnd.y - 50, 50, 10)
+      ctx.fillStyle = powerColor
+      ctx.fillRect(dragEnd.x - 24, dragEnd.y - 49, 48 * powerPercent, 8)
+      
+      const arrowLength = Math.min(dist / 5, 30)
+      if (arrowLength > 5) {
+        ctx.strokeStyle = powerColor
+        ctx.lineWidth = 3
+        ctx.beginPath()
+        ctx.moveTo(dragEnd.x, dragEnd.y)
+        ctx.lineTo(
+          dragEnd.x + Math.cos(angle) * arrowLength,
+          dragEnd.y + Math.sin(angle) * arrowLength
+        )
+        ctx.stroke()
+        
+        const arrowHeadAngle = 0.5
+        ctx.beginPath()
+        ctx.moveTo(
+          dragEnd.x + Math.cos(angle) * arrowLength,
+          dragEnd.y + Math.sin(angle) * arrowLength
+        )
+        ctx.lineTo(
+          dragEnd.x + Math.cos(angle - arrowHeadAngle) * (arrowLength * 0.7),
+          dragEnd.y + Math.sin(angle - arrowHeadAngle) * (arrowLength * 0.7)
+        )
+        ctx.moveTo(
+          dragEnd.x + Math.cos(angle) * arrowLength,
+          dragEnd.y + Math.sin(angle) * arrowLength
+        )
+        ctx.lineTo(
+          dragEnd.x + Math.cos(angle + arrowHeadAngle) * (arrowLength * 0.7),
+          dragEnd.y + Math.sin(angle + arrowHeadAngle) * (arrowLength * 0.7)
+        )
+        ctx.stroke()
+      }
     } else if (!gameState.isBirdFlying && !gameState.gameOver && !gameState.levelComplete) {
       const birdX = slingshot.x
       const birdY = slingshot.y - 30
